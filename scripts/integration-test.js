@@ -1,6 +1,11 @@
+/* eslint-env node */
+import dotenv from 'dotenv';
 import process from 'node:process';
 import mysql from 'mysql2/promise';
 import { createCallToolHandler } from '../index.js';
+
+// Load env from optional first arg or default to .env
+dotenv.config({ path: process.argv[2] || '.env' });
 
 async function run() {
   if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_DATABASE) {
@@ -63,4 +68,3 @@ async function run() {
 }
 
 run();
-

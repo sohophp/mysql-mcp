@@ -1,3 +1,4 @@
+/* eslint-env node */
 // Minimal stdio transport fallback for environments where the SDK doesn't export
 // StdioServerTransport. The real SDK may provide a richer implementation; this
 // fallback implements the minimal surface used by createMcpServer + Server.connect.

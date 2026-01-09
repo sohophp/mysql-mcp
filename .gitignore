@@ -2,9 +2,12 @@
 node_modules/
 npm-debug.log
 yarn-error.log
-.env
-.env.*.local
 .DS_Store
+
+# Env files
+.env
+.env.*
+.env.*.local
 
 # Local dev env file
 .env.dev
@@ -21,7 +24,16 @@ coverage/
 *.sublime-project
 *.code-workspace
 
+# JetBrains
+*.iws
+out/
+
 # Mac/Editor temp files
 *.swp
 *.swo
 *.tmp
+
+# Logs
+logs/
+*.log
+npm-debug.log*

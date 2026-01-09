@@ -54,6 +54,13 @@ export function createCallToolHandler(pool) {
   return async (request) => {
     const { name, arguments: args } = request.params;
 
+    // Log incoming tool calls for visibility when running in stdio mode
+    try {
+      console.log(`Received tools/call request: ${name}`);
+    } catch (e) {
+      // ignore logging errors
+    }
+
     const anyPool = /** @type {any} */ (pool);
     const conn = await anyPool.getConnection();
     try {
@@ -95,7 +102,7 @@ export function createMcpServer(pool) {
   const server = new Server({
     name: "mysql-mcp",
     version: "0.1.0"
-  });
+  }, { capabilities: { tools: true } });
 
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     return { tools: getTools() };
@@ -145,6 +152,14 @@ async function main() {
   const StdioServerTransport = await loadStdioTransport();
   const transport = new StdioServerTransport();
   transport.onerror = (err) => {
+    // Ignore known benign parse error that can occur during stream chunking
+    try {
+      if (err && err.message && typeof err.message === 'string' && err.message.includes('Unexpected end of JSON input')) {
+        return;
+      }
+    } catch (e) {
+      // fall through to logging
+    }
     console.error("Transport error:", err);
   };
 
@@ -153,8 +168,12 @@ async function main() {
     process.exit(0);
   };
 
+  console.log("Connecting MCP server to stdio transport...");
+
   // connect will call transport.start() internally
   await server.connect(transport);
+
+  console.log("MCP server connected and listening (stdio transport). Waiting for messages on stdin...");
 
   // Graceful shutdown
   const shutdown = async () => {

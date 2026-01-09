@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
-    "dev": "dotenv -e .env.dev -- node index.js"
+    "dev": "dotenv -e .env.dev -- node index.js",
+    "integration-test": "node scripts/integration-test.js .env.dev",
+    "list-tables": "node scripts/list-tables.js .env.dev"
   },
   "keywords": [],
   "author": "",

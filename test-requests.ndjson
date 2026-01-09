@@ -1,0 +1,2 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"1","clientInfo":{"name":"local-client","version":"0.1.0"},"capabilities":{"tools":true}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
