@@ -1,5 +1,7 @@
 # mysql-mcp
 
+> English README: `README.md`
+
 这是一个小型的 Model Context Protocol (MCP) 服务器示例，提供一些基于 MySQL 的工具（列出表、描述表结构、显示索引）。
 
 ## 文档（Docs）
