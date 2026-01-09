@@ -13,3 +13,15 @@ yarn-error.log
 coverage/
 .vitest/
 
+# IDE / Editor
+.idea/
+.vscode/
+*.iml
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+# Mac/Editor temp files
+*.swp
+*.swo
+*.tmp
