@@ -2,6 +2,10 @@
 
 这是一个小型的 Model Context Protocol (MCP) 服务器示例，提供一些基于 MySQL 的工具（列出表、描述表结构、显示索引）。
 
+## 文档（Docs）
+- 开发指南：`docs/development.md`
+- 使用指南：`docs/usage.md`
+
 ## 功能
 - 列出数据库中的表
 - 描述表结构
@@ -44,4 +48,3 @@ npm test
 - `index.js` - MCP 服务器实现
 - `stdio-transport.js` - 本地回退的 stdio 传输实现
 - `test/` - 单元测试
-

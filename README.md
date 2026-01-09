@@ -2,6 +2,10 @@
 
 A small Model Context Protocol (MCP) server that exposes a few MySQL-specific tools over MCP (list tables, describe table, show indexes).
 
+## Docs
+- Development guide: `docs/development.md`
+- Usage guide: `docs/usage.md`
+
 ## Features
 - List tables in a MySQL database
 - Describe table structure
@@ -50,4 +54,3 @@ npm test
 
 ## License
 MIT
-
