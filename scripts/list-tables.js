@@ -4,7 +4,12 @@ import process from 'node:process';
 import mysql from 'mysql2/promise';
 
 // Usage: node scripts/list-tables.js .env.dev
-dotenv.config({ path: process.argv[2] || '.env' });
+const envPath = process.argv[2] || '.env';
+dotenv.config({ path: envPath });
+
+// Print a small, safe startup summary to help debugging (do not print passwords)
+console.log(`Loaded env file: ${envPath}`);
+console.log(`Using MYSQL_HOST=${process.env.MYSQL_HOST ? '[redacted]' : 'undefined'} DATABASE=${process.env.MYSQL_DATABASE || 'undefined'}`);
 
 async function main() {
   if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_DATABASE) {
@@ -38,4 +43,3 @@ async function main() {
 }
 
 main();
-

@@ -37,3 +37,16 @@ out/
 logs/
 *.log
 npm-debug.log*
+
+# Local OS files
+Thumbs.db
+desktop.ini
+
+# Editor state
+*.localhistory
+
+# dotenv examples
+.env.local
+
+# lockfiles (optional)
+package-lock.json
