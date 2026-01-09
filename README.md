@@ -2,9 +2,17 @@
 
 A small Model Context Protocol (MCP) server that exposes a few MySQL-specific tools over MCP (list tables, describe table, show indexes).
 
+## Language / 文档语言
+- English README: `README.md`
+- 简体中文 README: `README.zh-CN.md`
+
 ## Docs
-- Development guide: `docs/development.md`
-- Usage guide: `docs/usage.md`
+- English
+  - Development guide: `docs/development.md`
+  - Usage guide: `docs/usage.md`
+- 简体中文
+  - 开发指南: `docs/development.zh-CN.md`
+  - 使用指南: `docs/usage.zh-CN.md`
 
 ## Features
 - List tables in a MySQL database
