@@ -3,66 +3,104 @@ mysql-mcp
 
 A small MCP (Model Context Protocol) server that exposes read-only MySQL tools over stdio.
 
-Quick overview
---------------
-- The MCP server is implemented in `index.js` and exposes three tools: `list_tables`, `describe_table`, and `show_indexes`.
-- For development and testing the code exports factory functions so you can run unit tests without starting the server.
+Overview
+--------
+This project implements a lightweight MCP server (entry point: `index.js`) that provides read-only inspection tools for a MySQL database via stdio. It is intended for development, testing, and small integrations where a simple, local-to-process protocol is useful.
+
+Highlights
+- Exposes handlers such as `list_tables`, `describe_table`, and `show_indexes` (see `index.js`).
+- Designed so handlers can be required and unit tested without starting the stdio server.
+
+Quick start
+-----------
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. For local development against a real MySQL database, create a temporary development env file and run the server with it (see next section).
 
 Development environment configuration
 -------------------------------------
-To make it convenient to run the server against a real MySQL instance in development, you can create a temporary environment file and run the process with it.
+To make it convenient to run the server against a real MySQL instance in development, create a `.env.dev` file with your database credentials. An example file is provided as `.env.dev.example`.
 
-1. Copy the example development env file and fill in your database credentials:
+Copy and edit the example:
 
 ```bash
 cp .env.dev.example .env.dev
 # edit .env.dev and set values for MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
 ```
 
-2. Start the MCP server in development mode (uses dotenv-cli to load `.env.dev` into process.env):
+Then run the server with the development env loaded. The project uses `dotenv-cli` in the `dev` npm script to load `.env.dev` into `process.env` before starting `node index.js`.
+
+Start the server in development mode:
 
 ```bash
-# install dependencies if you haven't already
-npm install
-
-# start with the .env.dev values loaded
 npm run dev
 ```
 
 What `npm run dev` does
-------------------------
-- It uses `dotenv-cli` to load environment variables from `.env.dev` and then runs `node index.js`.
-- This avoids committing secrets to the repo and keeps configuration local to your dev machine.
+-----------------------
+- Loads `.env.dev` into `process.env` using `dotenv-cli` (so you can keep credentials out of your shell/CI). 
+- Runs `node index.js` to start the MCP server.
 
 Example `.env.dev` contents
 --------------------------
-The repository contains `.env.dev.example`. It looks like:
-
-```text
+```
 MYSQL_HOST=127.0.0.1
 MYSQL_USER=readonly_user
 MYSQL_PASSWORD=yourpassword
 MYSQL_DATABASE=your_database
 ```
 
-Security notes
---------------
-- Do NOT commit `.env.dev` to version control. Keep secrets out of the repository.
-- If you need to share credentials for CI or temporary testing, use secure secret managers or CI-provided secrets features.
-
 Running tests
 -------------
-Unit tests are written with Vitest. Run them with:
+The project includes unit tests (Vitest). Run them with:
 
 ```bash
 npm test
 ```
 
-Files of interest
+Integration testing with a real DB
+----------------------------------
+If you want to run integration tests or exercise the server against a real MySQL instance, use `.env.dev` with real credentials and then run the integration script (if provided) or start the server with `npm run dev` and run the client that talks MCP over stdio.
+
+Security notes
+--------------
+- Do NOT commit `.env.dev` or files containing secrets to version control. Use `.env.dev.example` to share the shape of the config without secrets.
+- For CI or shared environments, prefer the platform's secret storage rather than checked-in files.
+
+Repository layout
 -----------------
 - `index.js` — main server code and exported factory functions for tests
-- `test/index.test.js` — unit tests for handlers
-- `package.json` — contains scripts; `dev` script loads `.env.dev` and runs the server
+- `test/` — unit tests (e.g., `test/index.test.js`)
+- `scripts/` — helper scripts (integration test runner, etc.)
+- `package.json` — scripts and dependencies
 
-If you want more helper scripts (e.g. run integration tests with a test DB), tell me and I can add them.
+Recommended `.gitignore`
+------------------------
+Don't commit local environment files and node modules. A minimal `.gitignore` should include:
 
+```
+node_modules/
+.env
+.env.*
+.DS_Store
+```
+
+If you prefer, add `.env.dev` explicitly to your personal/global gitignore so it is never accidentally committed.
+
+Troubleshooting
+---------------
+- If the server won't start, ensure Node.js (v16+) is installed and dependencies are present (`npm install`).
+- If database connections fail, verify the `.env.dev` credentials and that the MySQL server allows connections from your host.
+- For test failures, run `npm test -- -t <name>` to run a specific test in Vitest.
+
+Contributing
+------------
+Contributions are welcome. Open an issue with a reproducible problem or a short PR with tests. Keep changes small and add tests for new behavior.
+
+License
+-------
+MIT
