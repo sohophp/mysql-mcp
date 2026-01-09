@@ -1,7 +1,6 @@
 import process from 'node:process';
 import mysql from "mysql2/promise";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   ListToolsRequestSchema,
   CallToolRequestSchema
@@ -107,6 +106,22 @@ export function createMcpServer(pool) {
   return server;
 }
 
+// Helper to load the stdio transport from the SDK if available, otherwise use local fallback
+async function loadStdioTransport() {
+  try {
+    // prefer SDK provided transport when available
+    const mod = await import('@modelcontextprotocol/sdk/server/stdio.js');
+    if (mod && mod.StdioServerTransport) return mod.StdioServerTransport;
+  }
+  catch (err) {
+    // ignore and fallback
+  }
+
+  // fallback to local implementation
+  const local = await import('./stdio-transport.js');
+  return local.StdioServerTransport;
+}
+
 // CLI / runtime entrypoint
 async function main() {
   if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_DATABASE) {
@@ -127,6 +142,7 @@ async function main() {
 
   const server = createMcpServer(pool);
 
+  const StdioServerTransport = await loadStdioTransport();
   const transport = new StdioServerTransport();
   transport.onerror = (err) => {
     console.error("Transport error:", err);
