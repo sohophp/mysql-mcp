@@ -9,6 +9,9 @@
     "integration-test": "node scripts/integration-test.js .env.dev",
     "list-tables": "node scripts/list-tables.js .env.dev"
   },
+  "bin": {
+    "mysql-mcp": "./index.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

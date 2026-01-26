@@ -75,6 +75,51 @@ npx dotenv -e .env.dev -- node scripts/diagnose-host.js rocky.wsl 3306
 Notes on PowerShell compatibility:
 - Many README examples use bash-style `cp`/`||` etc. In PowerShell use `copy` instead of `cp` and use `;` to separate commands rather than `||`.
 
+## StdIO wrapper (filtering non-JSON logs)
+
+This project is intended to be launched by an MCP host and communicate over stdin/stdout using JSON-RPC messages. When running the server directly for debugging you may see human-readable log lines emitted to stdout; those lines will break the MCP host's JSON parsing and show errors like:
+
+```
+Error: Unexpected token 'C', "Connecting"... is not valid JSON
+```
+
+To avoid that, use the included `wrap-stdio.js` wrapper. The wrapper runs `index.js` as a child process and routes lines that are valid JSON to stdout while sending non-JSON log lines to stderr. It also appends child output to `mcp-child.log` for later inspection.
+
+Examples
+
+PowerShell (Windows):
+
+```powershell
+# run the wrapper which starts the MCP server and filters stdout
+node wrap-stdio.js
+```
+
+Bash (Linux / WSL / macOS):
+
+```bash
+node wrap-stdio.js
+```
+
+If you're configuring an external host to launch the server, point the host's command to the wrapper rather than `index.js` directly. Example host process configuration (JSON):
+
+```json
+{
+  "command": "C:\\nvm4w2\\nodejs\\node.exe",
+  "args": ["C:\\mcp\\mysql-mcp\\wrap-stdio.js"],
+  "transport": "stdio"
+}
+```
+
+If you prefer not to use the wrapper, make sure your environment or logging configuration causes all human-readable logs to go to stderr (not stdout). The wrapper is the safest option when you don't control the host process.
+
+Troubleshooting: "Unexpected token" JSON errors
+
+- Cause: human-readable text (for example "Connecting...", "MCP server connected") was emitted on stdout and the MCP host attempted to parse it as JSON.
+- Quick fix: launch the server through `wrap-stdio.js` so only valid JSON lines reach stdout.
+- Alternative fix: change the server logging to write human logs to stderr instead of stdout.
+
+See `docs/stdio-wrapper.md` for a full explanation and examples in both English and Chinese.
+
 ## Integration / real MySQL testing
 If you have filled `.env.dev` with your development MySQL connection you can run the integration helpers:
 

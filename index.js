@@ -1,6 +1,6 @@
 import process from 'node:process';
 import mysql from "mysql2/promise";
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
   ListToolsRequestSchema,
   CallToolRequestSchema
@@ -56,7 +56,7 @@ export function createCallToolHandler(pool) {
 
     // Log incoming tool calls for visibility when running in stdio mode
     try {
-      console.log(`Received tools/call request: ${name}`);
+      console.error(`Received tools/call request: ${name}`);
     } catch (e) {
       // ignore logging errors
     }
@@ -99,16 +99,20 @@ export function createCallToolHandler(pool) {
  * Create and wire an McpServer using a provided pool.
  */
 export function createMcpServer(pool) {
-  const server = new Server({
+  // Build tools map expected by MCP host
+  const toolsArray = getTools();
+  const toolsMap = Object.fromEntries(toolsArray.map(t => [t.name, { description: t.description, inputSchema: t.inputSchema || {} }]));
+
+  // Use the higher-level McpServer API (recommended over the deprecated Server class)
+  const server = new McpServer({
     name: "mysql-mcp",
     version: "0.1.0"
-  }, { capabilities: { tools: true } });
+  }, { capabilities: { tools: toolsMap } });
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => {
-    return { tools: getTools() };
-  });
-
-  server.setRequestHandler(CallToolRequestSchema, createCallToolHandler(pool));
+  // McpServer wraps a lower-level Server instance at `.server`.
+  // Use the underlying server to install request handlers directly.
+  server.server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: getTools() }));
+  server.server.setRequestHandler(CallToolRequestSchema, createCallToolHandler(pool));
 
   return server;
 }
@@ -164,20 +168,20 @@ async function main() {
   };
 
   transport.onclose = () => {
-    console.log("Transport closed, shutting down.");
+    console.error("Transport closed, shutting down.");
     process.exit(0);
   };
 
-  console.log("Connecting MCP server to stdio transport...");
+  console.error("Connecting MCP server to stdio transport...");
 
   // connect will call transport.start() internally
   await server.connect(transport);
 
-  console.log("MCP server connected and listening (stdio transport). Waiting for messages on stdin...");
+  console.error("MCP server connected and listening (stdio transport). Waiting for messages on stdin...");
 
   // Graceful shutdown
   const shutdown = async () => {
-    console.log("Shutting down...");
+    console.error("Shutting down...");
     try {
       await pool.end();
     }
